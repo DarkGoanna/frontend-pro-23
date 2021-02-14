@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>hw-23</title>
+</head>
+<body>
+    <script>
+        const film_xhr = new XMLHttpRequest();
+        film_xhr.open('GET', 'https://swapi.dev/api/films');
+        film_xhr.send();
+        film_xhr.onload = () => {
+            document.querySelector('body').insertAdjacentHTML('afterBegin', '<ol></ol>');
+            const films = JSON.parse(film_xhr.response).results;
+            const films_list = document.querySelector('body > ol');
+            films.forEach(film => films_list.insertAdjacentHTML('beforeend', `<li>${film['title']}</li>`));
+
+            films_list.addEventListener('click', event => {
+                let current_film = films.find( film => film.title === event.target.textContent);
+                if (event.target.tagName === 'LI' && !event.target.childElementCount) {
+                    event.target.insertAdjacentHTML('beforeend', '<ol></ol>');
+                    const sub_list = event.target.querySelector('ol');
+                    current_film.starships.forEach(link => {
+                        const xhr = new XMLHttpRequest;
+                        xhr.open('GET', link);
+                        xhr.send();
+                        xhr.onload = () => {
+                            sub_list.insertAdjacentHTML('beforeend', `<li>${JSON.parse(xhr.response).name}</li>`);
+                        }
+                    })
+                } else {
+                    const sub_list = event.target.querySelector('ol');
+                    if (sub_list.parentNode) {
+                        sub_list.parentNode.removeChild(sub_list);
+                    }
+                }
+            })
+        }
+    </script>
+</body>
+</html>
